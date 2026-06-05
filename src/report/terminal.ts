@@ -57,14 +57,22 @@ export function renderTerminal(stats: Stats): string {
   // Top tools & top files, side by side conceptually but stacked for width safety.
   if (stats.topTools.length > 0) {
     out.push(pc.bold("Top tools"));
-    const t = new Table({ head: [pc.dim("tool"), pc.dim("calls")], colAligns: ["left", "right"] });
+    const t = new Table({
+      head: [pc.dim("tool"), pc.dim("calls")],
+      colAligns: ["left", "right"],
+      style: { head: [], border: [] },
+    });
     for (const row of stats.topTools) t.push([row.name, fmtInt(row.count)]);
     out.push(t.toString());
   }
 
   if (stats.topFiles.length > 0) {
     out.push(pc.bold("Top files"));
-    const t = new Table({ head: [pc.dim("file"), pc.dim("edits")], colAligns: ["left", "right"] });
+    const t = new Table({
+      head: [pc.dim("file"), pc.dim("edits")],
+      colAligns: ["left", "right"],
+      style: { head: [], border: [] },
+    });
     for (const row of stats.topFiles) t.push([shorten(row.path, 60), fmtInt(row.edits)]);
     out.push(t.toString());
   }
@@ -75,6 +83,7 @@ export function renderTerminal(stats: Stats): string {
     const t = new Table({
       head: [pc.dim("project"), pc.dim("sessions"), pc.dim("tokens"), pc.dim("cost")],
       colAligns: ["left", "right", "right", "right"],
+      style: { head: [], border: [] },
     });
     for (const p of stats.perProject) {
       t.push([shorten(p.name, 40), fmtInt(p.sessions), fmtInt(p.tokens), fmtCost(p.costUSD)]);

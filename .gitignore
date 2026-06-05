@@ -7,6 +7,9 @@ dist/
 # generated report (default output path)
 report.html
 
+# synthetic demo tree produced by scripts/gen-demo.mjs
+.demo-claude/
+
 # never mix package managers — pnpm only
 package-lock.json
 yarn.lock
