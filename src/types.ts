@@ -1,5 +1,5 @@
 /**
- * Shared types for ccstats.
+ * Shared types for claudestats.
  *
  * The Claude Code JSONL format is undocumented and evolves across versions, so
  * every field on {@link RawEvent} is optional and must be accessed defensively.
@@ -33,7 +33,7 @@ export interface RawMessage {
 }
 
 /**
- * One parsed JSONL line. This intentionally models only the fields ccstats
+ * One parsed JSONL line. This intentionally models only the fields claudestats
  * reads; unknown keys are preserved via the index signature but never assumed.
  */
 export interface RawEvent {

@@ -52,13 +52,13 @@ export function renderHtml(stats: Stats): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ccstats report</title>
+<title>claudestats report</title>
 <style>${CSS}</style>
 </head>
 <body>
 <main>
   <header>
-    <h1>ccstats</h1>
+    <h1>claudestats</h1>
     <p class="sub">Local-first analytics for your Claude Code sessions — generated offline, nothing sent anywhere.</p>
     <p class="meta">generated ${escapeHtml(stats.generatedAt)}${rangeStr ? ` · ${escapeHtml(rangeStr)}` : ""}</p>
   </header>

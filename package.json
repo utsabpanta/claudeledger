@@ -1,5 +1,5 @@
 {
-  "name": "ccstats",
+  "name": "claudestats",
   "version": "0.1.0",
   "description": "Local-first analytics for your Claude Code session logs — runs fully offline, sends nothing.",
   "keywords": [
@@ -14,7 +14,7 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "ccstats": "./dist/cli.js"
+    "claudestats": "./dist/cli.js"
   },
   "files": [
     "dist",

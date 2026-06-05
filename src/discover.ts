@@ -2,9 +2,9 @@
  * Filesystem discovery: locate the Claude Code data root, enumerate session
  * files, and decode project directory names into readable paths.
  *
- * PRIVACY: every path ccstats reads is derived here, from a local directory
+ * PRIVACY: every path claudestats reads is derived here, from a local directory
  * under the user's home (or an explicit override). Nothing in this file — or
- * anywhere in ccstats — opens a network connection. This is the whole point of
+ * anywhere in claudestats — opens a network connection. This is the whole point of
  * the tool; keep it that way.
  */
 

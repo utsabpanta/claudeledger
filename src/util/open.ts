@@ -1,7 +1,7 @@
 /**
  * Open a file/URL in the user's default application, cross-platform.
  *
- * This is the one place ccstats shells out. It launches the OS "open" handler
+ * This is the one place claudestats shells out. It launches the OS "open" handler
  * (`open` on macOS, `start` on Windows, `xdg-open` on Linux) — it never makes a
  * network request itself.
  */

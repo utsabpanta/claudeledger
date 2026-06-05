@@ -1,5 +1,5 @@
 /**
- * ccstats CLI entry point: argument parsing, orchestration, and exit codes.
+ * claudestats CLI entry point: argument parsing, orchestration, and exit codes.
  *
  * Phase 1 wires up discovery + parsing + `--dump-schema`/`--verbose`. The
  * default summary command and report flags are added in later phases.
@@ -110,15 +110,15 @@ function parsePositiveInt(value: string, flag: string): number {
 }
 
 function fail(message: string): never {
-  process.stderr.write(`ccstats: ${message}\n`);
-  process.stderr.write(`Run \`ccstats --help\` for usage.\n`);
+  process.stderr.write(`claudestats: ${message}\n`);
+  process.stderr.write(`Run \`claudestats --help\` for usage.\n`);
   process.exit(2);
 }
 
-const HELP = `ccstats — local-first analytics for your Claude Code session logs
+const HELP = `claudestats — local-first analytics for your Claude Code session logs
 
 USAGE
-  ccstats [options]
+  claudestats [options]
 
 OPTIONS
   --project <name>     Filter to projects whose path contains <name>
@@ -135,7 +135,7 @@ OPTIONS
   --help, -h           Show this help and exit
 
 PRIVACY
-  ccstats only reads JSONL files under ~/.claude (or --root). It never makes a
+  claudestats only reads JSONL files under ~/.claude (or --root). It never makes a
   network request. Time-of-day stats are bucketed in your local timezone.
 `;
 
@@ -174,7 +174,7 @@ async function main(): Promise<void> {
     return;
   }
   if (opts.version) {
-    process.stdout.write(`ccstats ${VERSION}\n`);
+    process.stdout.write(`claudestats ${VERSION}\n`);
     return;
   }
 
@@ -184,7 +184,7 @@ async function main(): Promise<void> {
   if (!discovery.found) {
     process.stdout.write(
       `No Claude Code sessions found at ${discovery.projectsDir}.\n` +
-        `Is Claude Code installed? You can point ccstats elsewhere with --root <path>.\n`,
+        `Is Claude Code installed? You can point claudestats elsewhere with --root <path>.\n`,
     );
     return; // exit 0 — this is a normal "nothing to show" state, not an error.
   }
@@ -231,8 +231,8 @@ async function main(): Promise<void> {
     const outPath = resolve(opts.out ?? "report.html");
     writeFileSync(outPath, renderHtml(stats), "utf8");
     process.stdout.write(`Wrote self-contained report to ${outPath}\n`);
-    // CCSTATS_NO_OPEN lets scripts/CI generate the report without launching a browser.
-    if (process.env.CCSTATS_NO_OPEN) {
+    // CLAUDESTATS_NO_OPEN lets scripts/CI generate the report without launching a browser.
+    if (process.env.CLAUDESTATS_NO_OPEN) {
       process.stdout.write(`Open it in your browser: file://${outPath}\n`);
     } else {
       const opened = await openInBrowser(outPath);
@@ -246,7 +246,7 @@ async function main(): Promise<void> {
 
   if (stats.totals.unpricedModels.length > 0 && opts.json) {
     process.stderr.write(
-      `ccstats: warning — unpriced model(s): ${stats.totals.unpricedModels.join(", ")}. ` +
+      `claudestats: warning — unpriced model(s): ${stats.totals.unpricedModels.join(", ")}. ` +
         `Update src/pricing.ts.\n`,
     );
   }
@@ -305,6 +305,6 @@ function printVerbose(
 
 main().catch((err: unknown) => {
   const message = err instanceof Error ? err.message : String(err);
-  process.stderr.write(`ccstats: unexpected error: ${message}\n`);
+  process.stderr.write(`claudestats: unexpected error: ${message}\n`);
   process.exit(1);
 });
