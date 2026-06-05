@@ -1,5 +1,5 @@
 {
-  "name": "claudestats",
+  "name": "claudeledger",
   "version": "0.1.0",
   "description": "Local-first analytics for your Claude Code session logs — runs fully offline, sends nothing.",
   "keywords": [
@@ -14,15 +14,15 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/utsabpanta/claudestats.git"
+    "url": "git+https://github.com/utsabpanta/claudeledger.git"
   },
-  "homepage": "https://github.com/utsabpanta/claudestats#readme",
+  "homepage": "https://github.com/utsabpanta/claudeledger#readme",
   "bugs": {
-    "url": "https://github.com/utsabpanta/claudestats/issues"
+    "url": "https://github.com/utsabpanta/claudeledger/issues"
   },
   "type": "module",
   "bin": {
-    "claudestats": "./dist/cli.js"
+    "claudeledger": "./dist/cli.js"
   },
   "files": [
     "dist",

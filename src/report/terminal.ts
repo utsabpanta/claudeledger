@@ -15,7 +15,7 @@ export function renderTerminal(stats: Stats): string {
   const { totals } = stats;
 
   out.push(
-    pc.bold(pc.cyan("claudestats")) +
+    pc.bold(pc.cyan("claudeledger")) +
       pc.dim(`  ·  ${totals.sessions} sessions · ${totals.projects} projects · ${totals.activeDays} active days`),
   );
   const rangeStr = formatRange(stats.range);

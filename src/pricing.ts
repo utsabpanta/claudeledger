@@ -1,7 +1,7 @@
 /**
  * Model pricing, in USD per 1,000,000 tokens.
  *
- * Prices are hard-coded here on purpose — claudestats never fetches prices at
+ * Prices are hard-coded here on purpose — claudeledger never fetches prices at
  * runtime (it makes no network calls at all). When a model is missing from this
  * map, its tokens are still counted but its cost is reported as "unknown" and
  * the CLI prints a one-line warning telling you to update this file.

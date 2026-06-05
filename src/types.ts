@@ -1,5 +1,5 @@
 /**
- * Shared types for claudestats.
+ * Shared types for claudeledger.
  *
  * The Claude Code JSONL format is undocumented and evolves across versions, so
  * every field on {@link RawEvent} is optional and must be accessed defensively.
@@ -33,7 +33,7 @@ export interface RawMessage {
 }
 
 /**
- * One parsed JSONL line. This intentionally models only the fields claudestats
+ * One parsed JSONL line. This intentionally models only the fields claudeledger
  * reads; unknown keys are preserved via the index signature but never assumed.
  */
 export interface RawEvent {

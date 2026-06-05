@@ -1,36 +1,36 @@
-# claudestats
+# claudeledger
 
 **Local-first analytics for your Claude Code sessions.** Point it at your own
 session logs and get cost, token burn, tool-call patterns, most-touched files,
 and time-of-day productivity — as a terminal summary or a self-contained HTML
 dashboard.
 
-> 🔒 **It runs entirely offline.** claudestats only reads JSONL files under
+> 🔒 **It runs entirely offline.** claudeledger only reads JSONL files under
 > `~/.claude` on your machine and **never makes a single network call.** No
 > telemetry, no uploads, no accounts. The generated HTML report is one
 > self-contained file with no external assets, so it's private too.
 
-Existing tools render your Claude Code transcripts. claudestats is about
+Existing tools render your Claude Code transcripts. claudeledger is about
 **insight** — what you spent, where the tokens went, and when you actually work.
 
 ---
 
 ## The HTML report
 
-`npx claudestats --html` writes a single `report.html` (charts inlined as
+`npx claudeledger --html` writes a single `report.html` (charts inlined as
 hand-drawn SVG — no chart library, no CDN) and opens it in your browser:
 
-![claudestats HTML report](docs/report.png)
+![claudeledger HTML report](docs/report.png)
 
 *(Generated from synthetic sample data via `scripts/gen-demo.mjs` — no real
 paths here.)*
 
 ## The terminal summary
 
-`npx claudestats` prints a summary table:
+`npx claudeledger` prints a summary table:
 
 ```
-claudestats  ·  21 sessions · 4 projects · 15 active days
+claudeledger  ·  21 sessions · 4 projects · 15 active days
 
 ┌───────────────┬────────────┐
 │ Messages      │ 897        │
@@ -67,8 +67,8 @@ Tokens per day
 ## Quickstart (no install)
 
 ```sh
-npx claudestats            # summary table for all projects, all time
-npx claudestats --html     # write report.html and open it
+npx claudeledger            # summary table for all projects, all time
+npx claudeledger --html     # write report.html and open it
 ```
 
 Requires Node ≥ 24.
@@ -83,7 +83,7 @@ Claude Code writes one JSONL file per session under:
 ~/.claude/projects/<encoded-project-path>/<session-id>.jsonl
 ```
 
-claudestats discovers and reads those files locally. The discovery logic lives in
+claudeledger discovers and reads those files locally. The discovery logic lives in
 [`src/discover.ts`](src/discover.ts) — `resolveRoot()` decides where to look and
 `discoverSessions()` enumerates the files. There is no `fetch`, no `http`, no
 socket anywhere in the runtime path. You can verify it yourself:
@@ -92,7 +92,7 @@ socket anywhere in the runtime path. You can verify it yourself:
 grep -rEi 'fetch|http|net' dist/   # → nothing
 ```
 
-The only time claudestats shells out is to open the finished HTML report in your
+The only time claudeledger shells out is to open the finished HTML report in your
 browser (`open`/`xdg-open`/`start`) — see [`src/util/open.ts`](src/util/open.ts).
 
 ---
@@ -100,18 +100,18 @@ browser (`open`/`xdg-open`/`start`) — see [`src/util/open.ts`](src/util/open.t
 ## Commands & flags
 
 ```
-claudestats                      # summary table for ALL projects, all time
-claudestats --project <name>     # filter to projects whose path contains <name>
-claudestats --since "7 days ago" # date filter (ISO dates + natural language)
-claudestats --until <date>
-claudestats --html               # write report.html and open it in the browser
-claudestats --out <path>         # custom output path for the HTML
-claudestats --json               # machine-readable JSON stats to stdout (for piping)
-claudestats --root <path>        # override ~/.claude (also: CLAUDE_ROOT env var)
-claudestats --top <n>            # rows in "top files"/"top tools" (default 10)
-claudestats --verbose            # show skipped-line counts, timing, parse warnings
-claudestats --dump-schema        # print observed event types + keys, then exit
-claudestats --version / --help
+claudeledger                      # summary table for ALL projects, all time
+claudeledger --project <name>     # filter to projects whose path contains <name>
+claudeledger --since "7 days ago" # date filter (ISO dates + natural language)
+claudeledger --until <date>
+claudeledger --html               # write report.html and open it in the browser
+claudeledger --out <path>         # custom output path for the HTML
+claudeledger --json               # machine-readable JSON stats to stdout (for piping)
+claudeledger --root <path>        # override ~/.claude (also: CLAUDE_ROOT env var)
+claudeledger --top <n>            # rows in "top files"/"top tools" (default 10)
+claudeledger --verbose            # show skipped-line counts, timing, parse warnings
+claudeledger --dump-schema        # print observed event types + keys, then exit
+claudeledger --version / --help
 ```
 
 Time-of-day and weekday histograms are bucketed in your **local** timezone.
@@ -127,7 +127,7 @@ number.
 
 Prices live in a single editable map, [`src/pricing.ts`](src/pricing.ts), keyed
 by model id, with a `LAST_UPDATED` date and a link to Anthropic's pricing page.
-**Prices are never fetched at runtime.** When claudestats sees a model id that isn't
+**Prices are never fetched at runtime.** When claudeledger sees a model id that isn't
 in the map, it still counts the tokens but reports the cost as *unknown* and
 prints a one-line warning — update `pricing.ts` and re-run. (Zero-token models
 like Claude Code's `<synthetic>` placeholder are ignored, so they don't blank out
@@ -139,11 +139,11 @@ your cost.)
 
 The Claude Code JSONL format is **undocumented and evolving** — Anthropic
 publishes no spec, and fields change between versions (this repo was tested
-against 11 different Claude Code versions in one log set). claudestats parses
+against 11 different Claude Code versions in one log set). claudeledger parses
 defensively: every field is optional, unparseable lines are skipped and counted,
 and file operations are detected by the *shape* of a tool's input (presence of a
 `file_path`) rather than hard-coded tool names. When the format drifts and
-something looks off, run `claudestats --dump-schema` to see what's actually on disk —
+something looks off, run `claudeledger --dump-schema` to see what's actually on disk —
 and PRs are welcome.
 
 ---
