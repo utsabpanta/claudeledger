@@ -22,7 +22,7 @@
   },
   "type": "module",
   "bin": {
-    "claudeledger": "./dist/cli.js"
+    "claudeledger": "dist/cli.js"
   },
   "files": [
     "dist",
