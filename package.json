@@ -12,6 +12,14 @@
     "offline"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/utsabpanta/claudestats.git"
+  },
+  "homepage": "https://github.com/utsabpanta/claudestats#readme",
+  "bugs": {
+    "url": "https://github.com/utsabpanta/claudestats/issues"
+  },
   "type": "module",
   "bin": {
     "claudestats": "./dist/cli.js"
