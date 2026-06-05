@@ -9,7 +9,11 @@ import { discoverSessions, enrichProjectsFromCwd } from "./discover.js";
 import { parseSessions } from "./parse.js";
 import { analyze } from "./analyze.js";
 import { renderTerminal } from "./report/terminal.js";
+import { renderHtml } from "./report/html.js";
 import { filterByDate, parseDateBound, sinceMs, untilMs } from "./util/dates.js";
+import { openInBrowser } from "./util/open.js";
+import { writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 import type { RawEvent, SessionFile } from "./types.js";
 
 const VERSION = "0.1.0";
@@ -224,9 +228,18 @@ async function main(): Promise<void> {
   if (opts.json) {
     process.stdout.write(JSON.stringify(stats, null, 2) + "\n");
   } else if (opts.html) {
-    // Wired in Phase 4. For now, fall back to the terminal view with a note.
-    process.stderr.write("ccstats: --html is added in the next build phase; showing terminal report.\n");
-    process.stdout.write(renderTerminal(stats));
+    const outPath = resolve(opts.out ?? "report.html");
+    writeFileSync(outPath, renderHtml(stats), "utf8");
+    process.stdout.write(`Wrote self-contained report to ${outPath}\n`);
+    // CCSTATS_NO_OPEN lets scripts/CI generate the report without launching a browser.
+    if (process.env.CCSTATS_NO_OPEN) {
+      process.stdout.write(`Open it in your browser: file://${outPath}\n`);
+    } else {
+      const opened = await openInBrowser(outPath);
+      if (!opened) {
+        process.stdout.write(`Open it in your browser: file://${outPath}\n`);
+      }
+    }
   } else {
     process.stdout.write(renderTerminal(stats));
   }
