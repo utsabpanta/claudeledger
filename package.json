@@ -1,0 +1,49 @@
+{
+  "name": "ccstats",
+  "version": "0.1.0",
+  "description": "Local-first analytics for your Claude Code session logs — runs fully offline, sends nothing.",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "analytics",
+    "cli",
+    "tokens",
+    "cost",
+    "offline"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "ccstats": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@10.15.1",
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "chrono-node": "^2.7.7",
+    "cli-table3": "^0.6.5",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

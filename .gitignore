@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+
+# generated report (default output path)
+report.html
+
+# never mix package managers — pnpm only
+package-lock.json
+yarn.lock
+
+# packed tarballs from `pnpm pack`
+*.tgz
+
+# editor / OS noise
+.DS_Store
+*.log
+.vscode/
+.idea/
