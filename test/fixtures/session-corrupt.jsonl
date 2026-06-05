@@ -1,0 +1,5 @@
+{"type":"user","timestamp":"2026-02-01T08:00:00.000Z","sessionId":"s2","message":{"role":"user","content":"hi"}}
+{"type":"assistant", "message": {not valid json here
+{"type":"assistant","timestamp":"2026-02-01T08:00:10.000Z","sessionId":"s2","message":{"model":"claude-opus-4-8","usage":{"input_tokens":42}}}
+[]
+"just a string"
