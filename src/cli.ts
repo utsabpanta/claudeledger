@@ -5,9 +5,12 @@
  * default summary command and report flags are added in later phases.
  */
 
-import { discoverSessions } from "./discover.js";
+import { discoverSessions, enrichProjectsFromCwd } from "./discover.js";
 import { parseSessions } from "./parse.js";
-import type { RawEvent } from "./types.js";
+import { analyze } from "./analyze.js";
+import { renderTerminal } from "./report/terminal.js";
+import { filterByDate, parseDateBound, sinceMs, untilMs } from "./util/dates.js";
+import type { RawEvent, SessionFile } from "./types.js";
 
 const VERSION = "0.1.0";
 
@@ -182,26 +185,96 @@ async function main(): Promise<void> {
     return; // exit 0 — this is a normal "nothing to show" state, not an error.
   }
 
-  const parsed = await parseSessions(discovery.sessions);
-  const events = parsed.flatMap((p) => p.events);
+  let parsed = await parseSessions(discovery.sessions);
   const skipped = parsed.reduce((sum, p) => sum + p.skippedLines, 0);
 
+  // Recover real project names from each project's dominant `cwd` (the decoded
+  // directory name is lossy). Must happen before --project matching.
+  parsed = enrichProjectsFromCwd(parsed);
+
+  // --project: substring match (case-insensitive) on the real project path.
+  if (opts.project) {
+    const query = opts.project;
+    parsed = parsed.filter((p) => matchesProject(p.file, query));
+  }
+
   if (opts.dumpSchema) {
+    const events = parsed.flatMap((p) => p.events);
     process.stdout.write(dumpSchema(events));
-    if (opts.verbose) {
-      printVerbose(discovery.sessions.length, events.length, skipped, startedAt);
-    }
+    if (opts.verbose) printVerbose(parsed.length, events.length, skipped, startedAt);
     return;
   }
 
-  // Phases 2–4 add: analyze(parsed) -> Stats, then terminal/html/json reports.
-  process.stdout.write(
-    `Discovered ${discovery.sessions.length} session(s), ${events.length} event(s).\n` +
-      `Analytics output is added in the next build phase.\n`,
-  );
-  if (opts.verbose) {
-    printVerbose(discovery.sessions.length, events.length, skipped, startedAt);
+  // --since / --until: parse bounds against "now", then filter events.
+  const now = new Date();
+  const { since, until } = resolveDateBounds(opts, now);
+  parsed = filterByDate(parsed, since?.ms, until?.ms);
+
+  if (parsed.length === 0) {
+    process.stdout.write("No sessions match the given filters.\n");
+    return;
   }
+
+  const stats = analyze(parsed, {
+    generatedAt: now.toISOString(),
+    topN: opts.top,
+    range: { since: since?.label, until: until?.label },
+  });
+
+  if (opts.json) {
+    process.stdout.write(JSON.stringify(stats, null, 2) + "\n");
+  } else if (opts.html) {
+    // Wired in Phase 4. For now, fall back to the terminal view with a note.
+    process.stderr.write("ccstats: --html is added in the next build phase; showing terminal report.\n");
+    process.stdout.write(renderTerminal(stats));
+  } else {
+    process.stdout.write(renderTerminal(stats));
+  }
+
+  if (stats.totals.unpricedModels.length > 0 && opts.json) {
+    process.stderr.write(
+      `ccstats: warning — unpriced model(s): ${stats.totals.unpricedModels.join(", ")}. ` +
+        `Update src/pricing.ts.\n`,
+    );
+  }
+
+  if (opts.verbose) {
+    const events = parsed.flatMap((p) => p.events);
+    printVerbose(parsed.length, events.length, skipped, startedAt);
+  }
+}
+
+/** Does a session belong to a project matching the user's --project substring? */
+function matchesProject(s: SessionFile, query: string): boolean {
+  const q = query.toLowerCase();
+  return (
+    s.projectPath.toLowerCase().includes(q) || s.projectName.toLowerCase().includes(q)
+  );
+}
+
+interface ResolvedBound {
+  ms: number;
+  label: string;
+}
+
+/** Parse --since/--until into epoch-ms bounds, failing clearly on bad input. */
+function resolveDateBounds(
+  opts: CliOptions,
+  now: Date,
+): { since?: ResolvedBound; until?: ResolvedBound } {
+  let since: ResolvedBound | undefined;
+  let until: ResolvedBound | undefined;
+  if (opts.since !== undefined) {
+    const b = parseDateBound(opts.since, now);
+    if (!b) fail(`could not understand --since "${opts.since}"`);
+    since = { ms: sinceMs(b), label: opts.since };
+  }
+  if (opts.until !== undefined) {
+    const b = parseDateBound(opts.until, now);
+    if (!b) fail(`could not understand --until "${opts.until}"`);
+    until = { ms: untilMs(b), label: opts.until };
+  }
+  return { since, until };
 }
 
 function printVerbose(

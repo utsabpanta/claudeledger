@@ -11,7 +11,7 @@
 import { readdirSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, basename } from "node:path";
-import type { SessionFile } from "./types.js";
+import type { ParsedSession, SessionFile } from "./types.js";
 
 /** Options controlling where session files are read from. */
 export interface DiscoverOptions {
@@ -121,6 +121,64 @@ function* walkJsonl(
       yield* walkJsonl(entryAbs, depth + 1, maxDepth);
     }
   }
+}
+
+/**
+ * Replace each session's decoded project path/name with the real working
+ * directory, recovered from the most common `cwd` seen across all events of a
+ * project.
+ *
+ * Why: the directory-name encoding (`/` → `-`) is lossy — a real folder named
+ * `aws-system-design` decodes to `aws/system/design`, mangling the display
+ * name. Events carry the true `cwd`. We tally `cwd` per `projectDir` (so every
+ * session in a project — including subagent transcripts that lack a `cwd` —
+ * gets the same corrected name) and fall back to the decoded name only when no
+ * event in the whole project has a usable `cwd`.
+ */
+export function enrichProjectsFromCwd(
+  sessions: ParsedSession[],
+): ParsedSession[] {
+  // projectDir -> (cwd -> event count)
+  const cwdCounts = new Map<string, Map<string, number>>();
+  for (const session of sessions) {
+    let perProject = cwdCounts.get(session.file.projectDir);
+    if (!perProject) {
+      perProject = new Map<string, number>();
+      cwdCounts.set(session.file.projectDir, perProject);
+    }
+    for (const ev of session.events) {
+      const cwd = ev["cwd"];
+      if (typeof cwd === "string" && cwd !== "") {
+        perProject.set(cwd, (perProject.get(cwd) ?? 0) + 1);
+      }
+    }
+  }
+
+  const bestByDir = new Map<string, string>();
+  for (const [dir, counts] of cwdCounts) {
+    let best: string | undefined;
+    let bestCount = 0;
+    for (const [cwd, count] of counts) {
+      if (count > bestCount) {
+        best = cwd;
+        bestCount = count;
+      }
+    }
+    if (best) bestByDir.set(dir, best);
+  }
+
+  return sessions.map((session) => {
+    const cwd = bestByDir.get(session.file.projectDir);
+    if (!cwd) return session;
+    return {
+      ...session,
+      file: {
+        ...session.file,
+        projectPath: cwd,
+        projectName: basename(cwd) || cwd,
+      },
+    };
+  });
 }
 
 function isDirectory(p: string): boolean {

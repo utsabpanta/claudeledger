@@ -75,7 +75,9 @@ export function analyze(
   let topLevelSessions = 0;
 
   for (const session of sessions) {
-    const project = getProject(projects, session.file.projectName);
+    // Group by the stable projectDir key, display the (possibly cwd-enriched)
+    // project name.
+    const project = getProject(projects, session.file.projectDir, session.file.projectName);
     if (!session.file.isSubagent) {
       project.sessions++;
       topLevelSessions++;
@@ -226,11 +228,15 @@ function countToolUse(
   }
 }
 
-function getProject(map: Map<string, ProjectAcc>, name: string): ProjectAcc {
-  let acc = map.get(name);
+function getProject(
+  map: Map<string, ProjectAcc>,
+  key: string,
+  name: string,
+): ProjectAcc {
+  let acc = map.get(key);
   if (!acc) {
     acc = { name, sessions: 0, tokens: 0, cost: 0, hasUnpriced: false };
-    map.set(name, acc);
+    map.set(key, acc);
   }
   return acc;
 }
